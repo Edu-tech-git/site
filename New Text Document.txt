@@ -1,0 +1,13 @@
+        // REDIRECT TO EXAM (The logic you asked for)
+        goToExam: function () {
+          // هنا تضع اسم ملف صفحة الامتحان التي قمت بإنشائها
+          window.location.href = "quiz.html";
+        },
+
+
+      <!-- SECTION: EXAMS (The part you requested) -->
+      <div class="main-node node-exams" onclick="app.goToExam()">
+        <span class="badge-premium">PREMIUM</span>
+        <h2 id="node-exam-title">بنك الامتحانات النهائية</h2>
+        <p id="node-exam-subtitle">Final Practice Quizzes (MCQ)</p>
+      </div>
