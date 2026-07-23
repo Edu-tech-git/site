@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Short Stories Quiz</title>
+    <link rel="shortcut icon" href="assests/icon.ico" type="image/x-icon" />
+    <!-- Cairo font (for body) loaded from Google Fonts. Place Arnold font files in `assests/` for the H1 if available. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="logo-wrap">
+          <!-- Put your header logos in the `assests/` folder (example names shown). -->
+          <img
+            src="assests/logo-left.png"
+            alt="University logo left"
+            onerror="this.style.display='none'"
+          />
+        </div>
+
+        <div>
+          <h1>Short Quiz: Grammar</h1>
+          <div class="meta">
+            صفحة تفاعلية للاختبار — أجب على الأسئلة واحصل على ملاحظات فورية
+          </div>
+        </div>
+
+        <div class="logo-wrap" style="justify-self: end">
+          <img
+            src="assests/logo-right.png"
+            alt="University logo right"
+            onerror="this.style.display='none'"
+          />
+        </div>
+      </header>
+      <div class="meta">الأسئلة: <span id="totalCount">0</span></div>
+
+      <main class="card">
+        <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
+
+        <div class="q-area">
+          <section>
+            <div id="questionBox">
+              <!-- question injected here -->
+            </div>
+
+            <div class="controls">
+              <button
+                id="submitBtn"
+                disabled
+                style="
+                  display: inline-block;
+                  background: #0b5fff;
+                  color: #fff;
+                  padding: 8px 14px;
+                  border-radius: 6px;
+                  border: none;
+                  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+                  position: relative;
+                  z-index: 1;
+                "
+              >
+                تأكيد الإجابة
+              </button>
+              <button id="nextBtn" class="secondary" style="display: none">
+                التالي
+              </button>
+              <button id="hintBtn" class="ghost">إظهار التلميح</button>
+              <button
+                id="showAllBtn"
+                class="secondary"
+                style="margin-left: auto; visibility: hidden"
+              >
+                عرض المراجعة
+              </button>
+            </div>
+
+            <div id="hintBox" class="hint" style="display: none"></div>
+            <div
+              id="rationaleBox"
+              class="rationale"
+              style="display: none"
+            ></div>
+          </section>
+
+          <aside>
+            <div style="font-weight: 600; margin-bottom: 8px">النتيجة</div>
+            <div
+              class="card"
+              style="padding: 12px; background: #f9fafb; box-shadow: none"
+            >
+              <div>
+                السؤال الحالي: <strong id="currentIndex">0</strong> /
+                <strong id="totalIndex">0</strong>
+              </div>
+              <div style="margin-top: 8px" class="score">
+                النقاط: <span id="score">0</span>
+              </div>
+              <div class="review">
+                <button id="restartBtn" class="ghost">أعد الاختبار</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        <div id="finalResults" class="results card" style="margin-top: 14px">
+          <div class="score">
+            النتيجة النهائية: <span id="finalScore">0</span> /
+            <span id="finalTotal">0</span>
+          </div>
+          <div
+            id="finalMessage"
+            style="margin-top: 8px; color: var(--muted)"
+          ></div>
+          <div style="margin-top: 10px">
+            <button id="reviewBtn" class="secondary">مراجعة الإجابات</button>
+            <button id="retryBtn" style="margin-left: 8px">
+              حاول مرة أخرى
+            </button>
+            <button
+              id="mindMapBtn"
+              class="secondary"
+              style="margin-left: 8px; display: none"
+            >
+              عرض الخرائط الذهنية
+            </button>
+          </div>
+        </div>
+
+        <footer>
+          <p>hope you get the point💕</p>
+          <!-- keep an accessible direct link but hide it for now; the modal/button will appear in the final results -->
+          <button class="" style="display: none">
+            <a
+              href="assests/Mind Map.png"
+              target="_blank"
+              style="text-decoration: none"
+              >Mind Map</a
+            >
+          </button>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Mind map modal (hidden until user opens it) -->
+    <div id="mindMapModal" class="mm-modal" aria-hidden="true">
+      <div
+        class="mm-content"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mind Map"
+      >
+        <img id="mindMapImage" src="assests/Mind Map.png" alt="Mind map" />
+        <div style="text-align: center">
+          <button id="closeMindMap" class="mm-close">إغلاق</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+      // Questions replaced per user request (30 items)
+      const data = {
+        quiz: [
+          {
+            question:
+              "The nurse ______ the patient’s temperature every four hours.",
+            answerOptions: [
+              {
+                text: "checks",
+                rationale: "Present simple for routine actions.",
+                isCorrect: true,
+              },
+              {
+                text: "is checking",
+                rationale: "Present continuous implies action now.",
+                isCorrect: false,
+              },
+              {
+                text: "has checked",
+                rationale: "Present perfect implies completed action.",
+                isCorrect: false,
+              },
+              {
+                text: "will check",
+                rationale: "Future form — not habitual.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Think routine/regular actions.",
+          },
+          {
+            question:
+              "The research team ______ data from five hospitals this week.",
+            answerOptions: [
+              {
+                text: "collects",
+                rationale: "General habit — not specific to this week.",
+                isCorrect: false,
+              },
+              {
+                text: "is collecting",
+                rationale:
+                  "Present continuous for an action happening this week.",
+                isCorrect: true,
+              },
+              {
+                text: "has collected",
+                rationale: "Present perfect implies completion.",
+                isCorrect: false,
+              },
+              {
+                text: "collected",
+                rationale: "Past simple — not matching 'this week' ongoing.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Focus on ongoing action within a time period.",
+          },
+          {
+            question: "The surgeon ______ the operation yesterday afternoon.",
+            answerOptions: [
+              {
+                text: "performs",
+                rationale: "Present simple — not for past time.",
+                isCorrect: false,
+              },
+              {
+                text: "performed",
+                rationale: "Past simple for a completed action yesterday.",
+                isCorrect: true,
+              },
+              {
+                text: "has performed",
+                rationale: "Present perfect — usually without a finished time.",
+                isCorrect: false,
+              },
+              {
+                text: "will perform",
+                rationale: "Future tense — not matching 'yesterday'.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Check the time expression 'yesterday'.",
+          },
+          {
+            question: "The study ______ three times before publication.",
+            answerOptions: [
+              {
+                text: "reviewed",
+                rationale: "Past simple — agent unclear.",
+                isCorrect: false,
+              },
+              {
+                text: "reviews",
+                rationale: "Present simple — not correct here.",
+                isCorrect: false,
+              },
+              {
+                text: "was reviewed",
+                rationale: "Passive past — fits 'before publication'.",
+                isCorrect: true,
+              },
+              {
+                text: "is reviewing",
+                rationale: "Present continuous — not matching sequence.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Passive voice is likely.",
+          },
+          {
+            question: "We ______ this topic since last semester.",
+            answerOptions: [
+              {
+                text: "study",
+                rationale: "Present simple — not with 'since'.",
+                isCorrect: false,
+              },
+              {
+                text: "have studied",
+                rationale: "Present perfect with since — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "studied",
+                rationale: "Past simple — not with 'since' continuing.",
+                isCorrect: false,
+              },
+              {
+                text: "are studying",
+                rationale: "Present continuous — not with 'since'.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Use present perfect for actions from past until now.",
+          },
+          {
+            question:
+              "The patient ______ for two hours before the doctor arrived.",
+            answerOptions: [
+              {
+                text: "waited",
+                rationale:
+                  "Past simple — not continuous prior to another past point.",
+                isCorrect: false,
+              },
+              {
+                text: "had been waiting",
+                rationale:
+                  "Past perfect continuous for duration before another past event.",
+                isCorrect: true,
+              },
+              {
+                text: "has been waiting",
+                rationale:
+                  "Present perfect continuous — not appropriate before a past event.",
+                isCorrect: false,
+              },
+              {
+                text: "was waiting",
+                rationale:
+                  "Past continuous — possible but 'for two hours' with 'before' prefers past perfect continuous.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Sequence: action continuing before another past action.",
+          },
+          {
+            question: "By next year, the department ______ a new research lab.",
+            answerOptions: [
+              {
+                text: "is opening",
+                rationale:
+                  "Present continuous — not for completed future by a point.",
+                isCorrect: false,
+              },
+              {
+                text: "opened",
+                rationale: "Past simple — wrong time.",
+                isCorrect: false,
+              },
+              {
+                text: "will have opened",
+                rationale: "Future perfect for completion by a future time.",
+                isCorrect: true,
+              },
+              {
+                text: "has opened",
+                rationale: "Present perfect — not for a future point.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Completion by a future time → future perfect.",
+          },
+          {
+            question:
+              "When the phone rang, the nurse ______ the medication record.",
+            answerOptions: [
+              {
+                text: "filled",
+                rationale:
+                  "Past simple — completed action but phone interruption implies continuous.",
+                isCorrect: false,
+              },
+              {
+                text: "was filling",
+                rationale: "Past continuous interrupted by another past event.",
+                isCorrect: true,
+              },
+              {
+                text: "has filled",
+                rationale: "Present perfect — not matching past sequence.",
+                isCorrect: false,
+              },
+              {
+                text: "fills",
+                rationale: "Present simple — not correct.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Think interruption in the past.",
+          },
+          {
+            question:
+              "The professor ______ her lecture notes before class started.",
+            answerOptions: [
+              {
+                text: "prepares",
+                rationale:
+                  "Present simple — not matching the past-before-past.",
+                isCorrect: false,
+              },
+              {
+                text: "had prepared",
+                rationale:
+                  "Past perfect for action completed before another past event.",
+                isCorrect: true,
+              },
+              {
+                text: "was preparing",
+                rationale: "Past continuous — suggests ongoing at that time.",
+                isCorrect: false,
+              },
+              {
+                text: "prepares",
+                rationale: "Duplicate — not correct.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Completed before another past event → past perfect.",
+          },
+          {
+            question:
+              "The patient ______ pain relief soon after the injection.",
+            answerOptions: [
+              {
+                text: "felt",
+                rationale: "Past simple — appropriate for 'soon after'.",
+                isCorrect: true,
+              },
+              {
+                text: "feels",
+                rationale: "Present simple — not matching past context.",
+                isCorrect: false,
+              },
+              {
+                text: "has felt",
+                rationale: "Present perfect — not required here.",
+                isCorrect: false,
+              },
+              {
+                text: "had felt",
+                rationale: "Past perfect — not necessary with simple sequence.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Simple past after a past action.",
+          },
+          {
+            question:
+              "The committee ______ the proposal by the end of this week.",
+            answerOptions: [
+              {
+                text: "is reviewing",
+                rationale: "Present continuous — ongoing now.",
+                isCorrect: false,
+              },
+              {
+                text: "reviews",
+                rationale: "Present simple — general.",
+                isCorrect: false,
+              },
+              {
+                text: "reviewed",
+                rationale: "Past simple — wrong time.",
+                isCorrect: false,
+              },
+              {
+                text: "will have reviewed",
+                rationale:
+                  "Future perfect for completion by the end of the week.",
+                isCorrect: true,
+              },
+            ],
+            hint: "By + future point → future perfect.",
+          },
+          {
+            question: "The students ______ for their final exam right now.",
+            answerOptions: [
+              {
+                text: "study",
+                rationale:
+                  "Present simple — not indicating current ongoing action.",
+                isCorrect: false,
+              },
+              {
+                text: "studied",
+                rationale: "Past simple — not matching 'right now'.",
+                isCorrect: false,
+              },
+              {
+                text: "are studying",
+                rationale: "Present continuous for actions happening now.",
+                isCorrect: true,
+              },
+              {
+                text: "have studied",
+                rationale: "Present perfect — not matching 'right now'.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Action happening at this moment.",
+          },
+          {
+            question: "The nurse ______ her report yet.",
+            answerOptions: [
+              {
+                text: "doesn’t finish",
+                rationale: "Incorrect form.",
+                isCorrect: false,
+              },
+              {
+                text: "didn’t finish",
+                rationale:
+                  "Past simple — not matching 'yet' with present relevance.",
+                isCorrect: false,
+              },
+              {
+                text: "hasn’t finished",
+                rationale: "Present perfect negative with 'yet' — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "hasn’t finishing",
+                rationale: "Grammatically incorrect.",
+                isCorrect: false,
+              },
+            ],
+            hint: "'Yet' with negative → present perfect.",
+          },
+          {
+            question:
+              "The doctor ______ the results while the patient was waiting.",
+            answerOptions: [
+              {
+                text: "was analyzing",
+                rationale: "Past continuous during another past action.",
+                isCorrect: true,
+              },
+              {
+                text: "analyzed",
+                rationale: "Past simple — less likely for simultaneous action.",
+                isCorrect: false,
+              },
+              {
+                text: "analyzes",
+                rationale: "Present simple — not matching.",
+                isCorrect: false,
+              },
+              {
+                text: "has analyzed",
+                rationale:
+                  "Present perfect — not matching past continuous context.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Simultaneous past actions → past continuous.",
+          },
+          {
+            question: "The results ______ by the time the supervisor returned.",
+            answerOptions: [
+              {
+                text: "had been verified",
+                rationale:
+                  "Past perfect passive — correct for completion before another past event.",
+                isCorrect: true,
+              },
+              {
+                text: "are verifying",
+                rationale: "Present continuous — incorrect.",
+                isCorrect: false,
+              },
+              {
+                text: "have verified",
+                rationale:
+                  "Present perfect active — doesn't match passive needed.",
+                isCorrect: false,
+              },
+              {
+                text: "verified",
+                rationale:
+                  "Simple past — doesn't show prior completion clearly.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Prior action completed before another past action — consider passive.",
+          },
+          {
+            question:
+              "At this time tomorrow, the class ______ their presentations.",
+            answerOptions: [
+              {
+                text: "will be giving",
+                rationale:
+                  "Future continuous for actions occurring at a future time.",
+                isCorrect: true,
+              },
+              {
+                text: "gives",
+                rationale: "Present simple — not matching future.",
+                isCorrect: false,
+              },
+              {
+                text: "gave",
+                rationale: "Past simple — incorrect.",
+                isCorrect: false,
+              },
+              {
+                text: "will give",
+                rationale:
+                  "Simple future — possible but future continuous fits the time phrase.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Time expression 'at this time tomorrow' → future continuous.",
+          },
+          {
+            question:
+              "The medical team ______ the operation for five hours before they stopped.",
+            answerOptions: [
+              {
+                text: "operated",
+                rationale:
+                  "Simple past — doesn't show duration before stopping as clearly.",
+                isCorrect: false,
+              },
+              {
+                text: "has operated",
+                rationale: "Present perfect — not correct here.",
+                isCorrect: false,
+              },
+              {
+                text: "had been operating",
+                rationale:
+                  "Past perfect continuous for duration before another past event.",
+                isCorrect: true,
+              },
+              {
+                text: "will operate",
+                rationale: "Future tense — incorrect.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Duration before another past event → past perfect continuous.",
+          },
+          {
+            question: "The patient ______ her medication for three days.",
+            answerOptions: [
+              {
+                text: "hasn’t taken",
+                rationale:
+                  "Present perfect negative for recent period — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "didn’t take",
+                rationale:
+                  "Past simple — not indicating recent period up to now.",
+                isCorrect: false,
+              },
+              {
+                text: "hadn’t taken",
+                rationale: "Past perfect — not appropriate.",
+                isCorrect: false,
+              },
+              {
+                text: "doesn’t take",
+                rationale: "Present simple — not matching timeframe.",
+                isCorrect: false,
+              },
+            ],
+            hint: "No action during a recent period up to now → present perfect.",
+          },
+          {
+            question: "The researcher ______ on the article since last year.",
+            answerOptions: [
+              {
+                text: "has been working",
+                rationale:
+                  "Present perfect continuous for action continuing since a past point.",
+                isCorrect: true,
+              },
+              {
+                text: "was working",
+                rationale: "Past continuous — doesn't fit 'since last year'.",
+                isCorrect: false,
+              },
+              {
+                text: "had been working",
+                rationale:
+                  "Past perfect continuous — not used with 'since' to present.",
+                isCorrect: false,
+              },
+              {
+                text: "works",
+                rationale:
+                  "Present simple — not indicating duration since past.",
+                isCorrect: false,
+              },
+            ],
+            hint: "'Since last year' → present perfect continuous.",
+          },
+          {
+            question:
+              "By 2030, new vaccines ______ available for major diseases.",
+            answerOptions: [
+              {
+                text: "will have become",
+                rationale:
+                  "Future perfect for change completed by a future date.",
+                isCorrect: true,
+              },
+              {
+                text: "become",
+                rationale: "Bare infinitive — incorrect form.",
+                isCorrect: false,
+              },
+              {
+                text: "became",
+                rationale: "Past simple — wrong time.",
+                isCorrect: false,
+              },
+              {
+                text: "have become",
+                rationale: "Present perfect — not for a future deadline.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Change completed by a future date → future perfect.",
+          },
+          {
+            question: "When I arrived, the doctor ______ to another patient.",
+            answerOptions: [
+              {
+                text: "was talking",
+                rationale:
+                  "Past continuous for an action in progress when another happened.",
+                isCorrect: true,
+              },
+              {
+                text: "talked",
+                rationale: "Past simple — less likely for simultaneous action.",
+                isCorrect: false,
+              },
+              {
+                text: "has talked",
+                rationale: "Present perfect — incorrect.",
+                isCorrect: false,
+              },
+              {
+                text: "had talked",
+                rationale: "Past perfect — implies earlier completion.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Action in progress on arrival → past continuous.",
+          },
+          {
+            question:
+              "The university ______ its policy on plagiarism recently.",
+            answerOptions: [
+              {
+                text: "has updated",
+                rationale: "Present perfect for recent change — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "updates",
+                rationale: "Present simple — not specific/recent.",
+                isCorrect: false,
+              },
+              {
+                text: "updated",
+                rationale:
+                  "Past simple — possible but 'recently' often pairs with present perfect.",
+                isCorrect: false,
+              },
+              {
+                text: "was updating",
+                rationale: "Past continuous — not the best fit.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Recent change with present relevance → present perfect.",
+          },
+          {
+            question:
+              "The participants ______ the questionnaire before the session ended.",
+            answerOptions: [
+              {
+                text: "had completed",
+                rationale:
+                  "Past perfect for completion before another past event.",
+                isCorrect: true,
+              },
+              {
+                text: "completed",
+                rationale:
+                  "Past simple — possible but past perfect stresses prior completion.",
+                isCorrect: false,
+              },
+              {
+                text: "have completed",
+                rationale: "Present perfect — not matching the past timeframe.",
+                isCorrect: false,
+              },
+              {
+                text: "complete",
+                rationale: "Present simple — incorrect.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Completed before another past event → past perfect.",
+          },
+          {
+            question: "Every year, the students ______ a field report.",
+            answerOptions: [
+              {
+                text: "write",
+                rationale: "Present simple for habitual actions — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "are writing",
+                rationale: "Present continuous — not habitual.",
+                isCorrect: false,
+              },
+              {
+                text: "have written",
+                rationale: "Present perfect — not habitual.",
+                isCorrect: false,
+              },
+              {
+                text: "wrote",
+                rationale: "Past simple — not general habit.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Habitual action → present simple.",
+          },
+          {
+            question:
+              "The nurse ______ to check the patient’s blood pressure at the moment.",
+            answerOptions: [
+              {
+                text: "is preparing",
+                rationale: "Present continuous for current action — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "prepares",
+                rationale: "Present simple — not for current ongoing action.",
+                isCorrect: false,
+              },
+              {
+                text: "prepared",
+                rationale: "Past simple — incorrect.",
+                isCorrect: false,
+              },
+              {
+                text: "has prepared",
+                rationale: "Present perfect — implies completion.",
+                isCorrect: false,
+              },
+            ],
+            hint: "'At the moment' → present continuous.",
+          },
+          {
+            question: "The doctor ______ ten patients so far this morning.",
+            answerOptions: [
+              {
+                text: "treated",
+                rationale:
+                  "Past simple — less common with 'so far this morning'.",
+                isCorrect: false,
+              },
+              {
+                text: "was treating",
+                rationale: "Past continuous — not matching 'so far'.",
+                isCorrect: false,
+              },
+              {
+                text: "has treated",
+                rationale:
+                  "Present perfect for actions up to now this morning — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "treats",
+                rationale: "Present simple — not appropriate.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Actions up to now today → present perfect.",
+          },
+          {
+            question: "The conference ______ in Cairo next May.",
+            answerOptions: [
+              {
+                text: "will be held",
+                rationale: "Passive future — correct for scheduled events.",
+                isCorrect: true,
+              },
+              {
+                text: "is held",
+                rationale: "Present simple passive — not specific enough.",
+                isCorrect: false,
+              },
+              {
+                text: "held",
+                rationale: "Past participle without auxiliary — incorrect.",
+                isCorrect: false,
+              },
+              {
+                text: "has held",
+                rationale: "Present perfect — not matching future.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Future event in passive voice.",
+          },
+          {
+            question:
+              "The students ______ their reports for two weeks when the deadline came.",
+            answerOptions: [
+              {
+                text: "have written",
+                rationale: "Present perfect — not matching past-before-past.",
+                isCorrect: false,
+              },
+              {
+                text: "had been writing",
+                rationale:
+                  "Past perfect continuous for duration up to another past event — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "were writing",
+                rationale:
+                  "Past continuous — possible but past perfect continuous stresses duration.",
+                isCorrect: false,
+              },
+              {
+                text: "wrote",
+                rationale: "Past simple — less emphasis on duration.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Duration before a past deadline → past perfect continuous.",
+          },
+          {
+            question: "The results ______ published by next semester.",
+            answerOptions: [
+              {
+                text: "are",
+                rationale: "Present simple — wrong.",
+                isCorrect: false,
+              },
+              {
+                text: "were",
+                rationale: "Past simple — wrong.",
+                isCorrect: false,
+              },
+              {
+                text: "will be",
+                rationale:
+                  "Future simple passive for scheduled future event — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "have been",
+                rationale: "Present perfect passive — not for future.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Future passive for scheduled publication.",
+          },
+          {
+            question:
+              "The research assistant ______ samples when the alarm went off.",
+            answerOptions: [
+              {
+                text: "was collecting",
+                rationale:
+                  "Past continuous interrupted by another past event — correct.",
+                isCorrect: true,
+              },
+              {
+                text: "collected",
+                rationale:
+                  "Past simple — completed action, less likely for interruption.",
+                isCorrect: false,
+              },
+              {
+                text: "has collected",
+                rationale: "Present perfect — not matching past interruption.",
+                isCorrect: false,
+              },
+              {
+                text: "collects",
+                rationale: "Present simple — incorrect.",
+                isCorrect: false,
+              },
+            ],
+            hint: "Interrupted action in the past → past continuous.",
+          },
+        ],
+      };
+
+      const quiz = data.quiz;
+      let current = 0;
+      let score = 0;
+      const total = quiz.length;
+      // keep track of user's selections for review (null = unanswered)
+      const userAnswers = Array.from({ length: total }).map(() => null);
+
+      // UI refs
+      const questionBox = document.getElementById("questionBox");
+      const submitBtn = document.getElementById("submitBtn");
+      const hintBtn = document.getElementById("hintBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const hintBox = document.getElementById("hintBox");
+      const rationaleBox = document.getElementById("rationaleBox");
+      const progressBar = document.getElementById("progressBar");
+      const scoreEl = document.getElementById("score");
+      const currentIndex = document.getElementById("currentIndex");
+      const totalIndex = document.getElementById("totalIndex");
+      const totalCount = document.getElementById("totalCount");
+      const finalResults = document.getElementById("finalResults");
+      const finalScore = document.getElementById("finalScore");
+      const finalTotal = document.getElementById("finalTotal");
+      const finalMessage = document.getElementById("finalMessage");
+      const showAllBtn = document.getElementById("showAllBtn");
+      const restartBtn = document.getElementById("restartBtn");
+      const mindMapBtn = document.getElementById("mindMapBtn");
+      const mindMapModal = document.getElementById("mindMapModal");
+      const mindMapImage = document.getElementById("mindMapImage");
+      const closeMindMap = document.getElementById("closeMindMap");
+
+      totalCount.textContent = total;
+      totalIndex.textContent = total;
+
+      function renderQuestion(index) {
+        const q = quiz[index];
+        currentIndex.textContent = index + 1;
+        progressBar.style.width = Math.round((index / total) * 100) + "%";
+        hintBox.style.display = "none";
+        rationaleBox.style.display = "none";
+        submitBtn.disabled = true;
+        nextBtn.style.display = "none";
+        const choicesHtml = q.answerOptions
+          .map((opt, i) => {
+            return `\n          <label class="choice" data-i="${i}" tabindex="0">\n            <input type="radio" name="choice" value="${i}">\n            <span>${opt.text}</span>\n          </label>`;
+          })
+          .join("\n");
+
+        questionBox.innerHTML = `
+        <div class="question">${q.question}</div>
+        <div class="choices" role="radiogroup" aria-labelledby="currentIndex">${choicesHtml}</div>
+      `;
+
+        // attach listeners to choices
+        document
+          .querySelectorAll('.choices input[name="choice"]')
+          .forEach((inp) => {
+            inp.addEventListener("change", () => {
+              submitBtn.disabled = false;
+            });
+          });
+
+        // keyboard select for labels + basic arrow navigation
+        const labels = Array.from(document.querySelectorAll("label.choice"));
+        labels.forEach((lbl, idx) => {
+          const input = lbl.querySelector("input");
+          lbl.setAttribute("role", "radio");
+          lbl.tabIndex = 0;
+          lbl.addEventListener("keydown", (e) => {
+            if (e.key === " " || e.key === "Enter") {
+              e.preventDefault();
+              input.checked = true;
+              submitBtn.disabled = false;
+            } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+              e.preventDefault();
+              const next = labels[idx + 1] || labels[0];
+              next.focus();
+            } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+              e.preventDefault();
+              const prev = labels[idx - 1] || labels[labels.length - 1];
+              prev.focus();
+            }
+          });
+        });
+
+        // restore previously selected answer (if any)
+        const prevSel = userAnswers[index];
+        if (prevSel !== null) {
+          const node = document.querySelector(
+            `.choices input[value="${prevSel}"]`
+          );
+          if (node) {
+            node.checked = true;
+            submitBtn.disabled = false;
+          }
+        }
+
+        // focus first choice for keyboard users
+        const firstInp = document.querySelector(".choices input");
+        if (firstInp) firstInp.focus();
+      }
+
+      function handleSubmit() {
+        const sel = document.querySelector(
+          '.choices input[name="choice"]:checked'
+        );
+        if (!sel) return;
+        const selIdx = Number(sel.value);
+        // save user's answer
+        userAnswers[current] = selIdx;
+        const q = quiz[current];
+        const correctIdx = q.answerOptions.findIndex((o) => o.isCorrect);
+        // mark choices
+        document.querySelectorAll("label.choice").forEach((lbl) => {
+          const i = Number(lbl.getAttribute("data-i"));
+          lbl.classList.remove("correct", "wrong");
+          if (i === correctIdx) lbl.classList.add("correct");
+          if (i === selIdx && i !== correctIdx) lbl.classList.add("wrong");
+        });
+
+        // show rationale
+        rationaleBox.style.display = "block";
+        rationaleBox.innerHTML = `<strong>reason:</strong> ${q.answerOptions[selIdx].rationale}`;
+
+        if (q.answerOptions[selIdx].isCorrect) {
+          score++;
+          scoreEl.textContent = score;
+          // Trigger confetti for correct answer
+          try {
+            confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+          } catch (e) {}
+        }
+
+        // make the 'عرض المراجعة' control available after the first submission
+        try {
+          if (showAllBtn) showAllBtn.style.visibility = "visible";
+        } catch (e) {}
+
+        // prevent changing answer after submission
+        document
+          .querySelectorAll('.choices input[name="choice"]')
+          .forEach((i) => (i.disabled = true));
+
+        submitBtn.style.display = "none";
+        nextBtn.style.display = "inline-block";
+        updateProgressOnSubmit();
+      }
+
+      function updateProgressOnSubmit() {
+        progressBar.style.width =
+          Math.round(((current + 1) / total) * 100) + "%";
+      }
+
+      function showHint() {
+        const q = quiz[current];
+        hintBox.style.display =
+          hintBox.style.display === "none" ? "block" : "none";
+        hintBox.textContent = q.hint || "لا تلميح متاح.";
+      }
+
+      function nextQuestion() {
+        current++;
+        if (current < total) {
+          renderQuestion(current);
+          submitBtn.style.display = "inline-block";
+        } else {
+          finishQuiz();
+        }
+      }
+
+      function finishQuiz() {
+        finalResults.style.display = "flex";
+        finalScore.textContent = score;
+        finalTotal.textContent = total;
+        const pct = Math.round((score / total) * 100);
+        finalMessage.textContent = `لقد حصلت على ${pct}% — ${score} من ${total}.`;
+        // show mind-map button in final area
+        try {
+          if (mindMapBtn) mindMapBtn.style.display = "inline-block";
+        } catch (e) {}
+        // hide main controls
+        document.getElementById("questionBox").innerHTML = "";
+        submitBtn.style.display = "none";
+        nextBtn.style.display = "none";
+        hintBtn.style.display = "none";
+      }
+
+      // animate numeric count (used for the final score)
+      function animateCount(el, from, to, duration) {
+        const start = performance.now();
+        const frame = (now) => {
+          const t = Math.min(1, (now - start) / duration);
+          const val = Math.floor(from + (to - from) * t);
+          el.textContent = val;
+          if (t < 1) requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      }
+
+      function reviewAnswers() {
+        // render all questions + correct answers + chosen answer + rationale
+        const dump = quiz
+          .map((q, idx) => {
+            const correctIdx = q.answerOptions.findIndex((o) => o.isCorrect);
+            const choices = q.answerOptions
+              .map((o, i) => {
+                const userSel = userAnswers[idx];
+                const isUser = userSel === i;
+                const isCorrect = i === correctIdx;
+                const styleParts = [];
+                if (isCorrect)
+                  styleParts.push(
+                    "background:rgba(47,133,90,0.06);border-left:4px solid rgba(47,133,90,0.18);"
+                  );
+                if (isUser && !isCorrect)
+                  styleParts.push(
+                    "background:rgba(229,62,62,0.06);border-left:4px solid rgba(229,62,62,0.18);"
+                  );
+                return `<div aria-live="polite" style="padding:6px;border-radius:6px;margin:6px 0;${styleParts.join(
+                  ""
+                )}">${i + 1}. ${o.text}${
+                  isUser
+                    ? ' <strong style="margin-left:8px">(اختيارك)</strong>'
+                    : ""
+                }</div>`;
+              })
+              .join("");
+            return `<div style="margin-bottom:14px"><div style="font-weight:700">${
+              idx + 1
+            }. ${
+              q.question
+            }</div>${choices}<div style="color:var(--muted);margin-top:6px"><strong>reason:</strong> ${
+              q.answerOptions[correctIdx].rationale
+            }</div></div>`;
+          })
+          .join("");
+
+        document.getElementById("questionBox").innerHTML = dump;
+        submitBtn.style.display = "none";
+        nextBtn.style.display = "none";
+        hintBtn.style.display = "none";
+      }
+
+      // events
+      submitBtn.addEventListener("click", handleSubmit);
+      hintBtn.addEventListener("click", showHint);
+      nextBtn.addEventListener("click", () => {
+        nextQuestion();
+      });
+      showAllBtn.addEventListener("click", reviewAnswers);
+      restartBtn.addEventListener("click", () => {
+        location.reload();
+      });
+
+      // Mind map button & modal handlers
+      if (mindMapBtn) {
+        mindMapBtn.addEventListener("click", () => {
+          if (mindMapModal) {
+            mindMapModal.classList.add("open");
+            mindMapModal.setAttribute("aria-hidden", "false");
+          }
+        });
+      }
+      if (closeMindMap) {
+        closeMindMap.addEventListener("click", () => {
+          if (mindMapModal) {
+            mindMapModal.classList.remove("open");
+            mindMapModal.setAttribute("aria-hidden", "true");
+          }
+        });
+      }
+      // close modal on overlay click
+      if (mindMapModal) {
+        mindMapModal.addEventListener("click", (e) => {
+          if (e.target === mindMapModal) {
+            mindMapModal.classList.remove("open");
+            mindMapModal.setAttribute("aria-hidden", "true");
+          }
+        });
+      }
+      // ESC to close
+      window.addEventListener("keydown", (e) => {
+        if (
+          e.key === "Escape" &&
+          mindMapModal &&
+          mindMapModal.classList.contains("open")
+        ) {
+          mindMapModal.classList.remove("open");
+          mindMapModal.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      document.getElementById("retryBtn").addEventListener("click", () => {
+        location.reload();
+      });
+      document.getElementById("reviewBtn").addEventListener("click", () => {
+        reviewAnswers();
+        finalResults.style.display = "none";
+      });
+
+      // initial render
+      renderQuestion(0);
+      scoreEl.textContent = score;
+
+      // small accessibility: focus first interactive element on load
+      window.addEventListener("load", () => {
+        const firstChoice = document.querySelector(".choices input");
+        if (firstChoice) firstChoice.focus();
+      });
+    </script>
+  </body>
+</html>

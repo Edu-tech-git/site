@@ -1,0 +1,301 @@
+:root {
+  --bg-dark: #0f172a;
+  --bg-card: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+
+  --color-present: #3b82f6; /* Blue */
+  --color-past: #f97316; /* Orange */
+  --color-future: #a855f7; /* Purple */
+  --color-modals: #22c55e; /* Green */
+  --color-premium: #f59e0b; /* Gold */
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  direction: ltr;
+  font-family: "Cairo", Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 100%);
+  margin: 0;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.wrap {
+  max-width: 920px;
+  margin: 32px auto;
+  padding: 20px;
+}
+header {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+/* Use Arnold 2.1 for H1 if the font file is available in the assests folder.
+   Place the font files in `assests/` (note the project's current folder name).
+   Example filenames: `assests/Arnold-2.1.woff2` and `assests/Arnold-2.1.woff` */
+@font-face {
+  font-family: "Arnold 2.1";
+  src: url("assests/Arnold-2.1.woff2") format("woff2"),
+    url("assests/Arnold-2.1.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+h1 {
+  font-family: "Arnold 2.1", "Cairo", Inter, sans-serif;
+  font-size: 22px;
+}
+.meta {
+  direction: rtl;
+  color: var(--muted);
+  font-size: 13px;
+  position: sticky;
+}
+.card {
+  background: var(--card);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+  padding: 22px;
+}
+.progress {
+  height: 10px;
+  background: #e6eef9;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.progress > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #00fc5458, #00ff80);
+  width: 0;
+}
+.q-area {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.question {
+  font-weight: 600;
+  font-size: 18px;
+}
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+label.choice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #eef4ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease-in;
+}
+label.choice:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+label.choice input {
+  accent-color: var(--accent);
+}
+label.choice.correct {
+  border-color: rgba(47, 133, 90, 0.12);
+  background: rgba(47, 133, 90, 0.04);
+}
+label.choice.wrong {
+  border-color: rgba(229, 62, 62, 0.12);
+  background: rgba(229, 62, 62, 0.04);
+}
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+button {
+  background: var(--accent);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 0;
+  cursor: pointer;
+}
+
+/* Make touch targets larger on mobile */
+button,
+label.choice {
+  min-height: 44px;
+}
+button.secondary {
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid #dbeafe;
+}
+button.ghost {
+  background: transparent;
+  color: var(--accent-2);
+  border: 1px dashed #cfe8ff;
+}
+.hint,
+.rationale {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #eef3ff;
+  color: var(--muted);
+}
+
+/* Modal / lightbox for the mind map image */
+.mm-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 6, 23, 0.6);
+  z-index: 1200;
+  padding: 20px;
+}
+.mm-modal.open {
+  display: flex;
+}
+.mm-modal .mm-content {
+  max-width: 1000px;
+  width: 100%;
+  max-height: 90vh;
+  background: #fff;
+  padding: 12px;
+  border-radius: 10px;
+  overflow: auto;
+}
+.mm-modal img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.mm-close {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: var(--danger);
+  color: #fff;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.results {
+  display: none;
+  gap: 12px;
+}
+.score {
+  font-size: 20px;
+  font-weight: 700;
+}
+.review {
+  margin-top: 12px;
+}
+footer {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (min-width: 760px) {
+  .q-area {
+    grid-template-columns: 1fr 300px;
+  }
+  .controls {
+    justify-content: flex-start;
+  }
+}
+
+/* Header logos layout */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  gap: 12px;
+}
+header .logo-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+header .logo-wrap img {
+  height: 72px;
+  width: auto;
+  display: block;
+  border-radius: 6px;
+}
+
+/* Fixed progress bar at top of viewport */
+.fixed-progress {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.06);
+  z-index: 1300;
+}
+.fixed-progress > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #00fc5458, #00ff80);
+  width: 0;
+}
+
+/* Timer */
+#timer {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Make choices easier to read on small screens */
+.question {
+  font-size: 18px;
+}
+.choices {
+  gap: 10px;
+}
+
+@media (max-width: 520px) {
+  .wrap {
+    padding: 12px;
+  }
+  h1 {
+    font-size: 18px;
+  }
+  header .logo-wrap img {
+    height: 56px;
+  }
+  .q-area {
+    gap: 8px;
+  }
+}
