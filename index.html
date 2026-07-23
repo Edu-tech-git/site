@@ -737,6 +737,7 @@
   <body class="">
     <header>
       </button>
+      
       <h1 id="app-title">Mr. GRAMMAR</h1>
       <div class="subtitle" id="app-subtitle">
         Faculty of Education | English Dept.
@@ -1531,7 +1532,7 @@
         goToExam: function () {
           // افتح صفحة الامتحان في تاب جديد حتى لا يفقد المستخدم التقدم في الصفحة الحالية
           const win = window.open(
-            "https://grammar-short-quiz.netlify.app/",
+            "./quiz/quiz.html",
             "_blank"
           );
           if (win) win.opener = null; // أمان: منع الوصول للنافذة الأصلية
